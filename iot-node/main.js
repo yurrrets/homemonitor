@@ -1,6 +1,11 @@
 const dht_sensor = require('./build/Release/dht-sensor.node')
 const config = require('./config').config
-const https = require('https')
+const https = require('http') //require('https')
+
+
+let _is_running = true
+let _async_ops = []
+let _exit_f = null
 
 
 function delay(t, val) {
@@ -12,29 +17,50 @@ function delay(t, val) {
 }
 
 
-async function send_message(data) {
+
+function wait_exit() {
+    return new Promise(function(resolve) {
+        _exit_f = resolve
+    })
+}
+
+async function app_exit(retcode) {
+    _is_running = false
+    for (x of _async_ops) {
+        await x
+    }
+    _exit_f(retcode)
+}
+
+
+async function send_message(type, data) {
     //const httpData = new TextEncoder().encode(
-        const httpData =    JSON.stringify({ ...config.messageAuth, ...data })
+        const httpData =    JSON.stringify({ ...config.messageAuth, ...data, type: type })
     //)
-    console.log('httpData: '+httpData)
+    // console.log('httpData: '+httpData)
 
     let httpOpts = { 
         ...config.httpOptions,
+        path: '/data/send',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Content-Length': httpData.length
         }
     }
 
-    console.log('httpOpts: '+JSON.stringify(httpOpts))
+    // console.log('httpOpts: '+JSON.stringify(httpOpts))
 
     return new Promise(function(resolve, reject) {
         const req = https.request(httpOpts, res => {
             // console.log(`statusCode: ${res.statusCode}`)
         
-            // res.on('data', d => {
-            // process.stdout.write(d)
-            resolve(res)
+            res.on('data', d => {
+                // process.stdout.write(d)
+                res.data = d
+                resolve(res)
+            })
+            // resolve(res)
         })
         
         req.on('error', error => {
@@ -46,21 +72,39 @@ async function send_message(data) {
     })
 }
 
+async function read_send_temphumid() {
+    while (_is_running) {
+        const dhtval = dht_sensor.dhtValue()
+        // if (dhtval)
+        //     console.log(`i = ${i}, temp = ${dhtval.temperature} humid = ${dhtval.humidity}`)
+        // else
+        //     console.log(`i = ${i}, temp / humid = [n/a]`)
+
+        send_message("temphumid", dhtval).then(
+            data => { console.log(`sent temphumid ok, status=${data.statusCode}, resp=${data.data}`) },
+            err => { console.log(`sent temphumid error: ${err}`) }
+        )
+
+        await delay(5000)
+    }
+}
+
+async function send_pings() {
+    while (_is_running) {
+        send_message("ping").then(
+            data => { console.log(`sent ping ok, status=${data.statusCode}, resp=${data.data}`) },
+            err => { console.log(`sent ping error: ${err}`) }
+        )
+        await delay(1000 * 30)
+    }
+}
+
 async function main() {
     console.log('hello world!')
-    for (let i = 0; i < 2; i++) {
-        await delay(200)
-        const dhtval = dht_sensor.dhtValue()
-        if (dhtval)
-            console.log(`i = ${i}, temp = ${dhtval.temperature} humid = ${dhtval.humidity}`)
-        else
-            console.log(`i = ${i}, temp / humid = [n/a]`)
-
-        send_message({ dhtval: dhtval }).then(
-            data => { console.log(`sent ok, status=${data.statusCode}`) },
-            err => { console.log(`sent err: ${err}`) }
-        )
-    }
+    send_message("start")
+    _async_ops.push( read_send_temphumid() )
+    _async_ops.push( send_pings() )
+    return await wait_exit()
 }
 
 main().then(

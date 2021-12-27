@@ -1,0 +1,19 @@
+extends layout
+
+block content
+
+  - var getFmtDateTime = function(tmSinceEpoch) { return (tmSinceEpoch ? new Date(tmSinceEpoch).toLocaleString() : "<N/A>") }
+
+  h1 Locations data
+
+  - for (const key in keys) {
+  - const data = msg_data[key]
+  div
+    h3= keys[key]
+    p Started: #{ getFmtDateTime(data.start.lasttime) }
+    p Last ping: #{ getFmtDateTime(data.ping.lasttime) }
+    p Last temp/humidity: #{ getFmtDateTime(data.temphumid.lasttime) }
+    p Temperature: #{ data.temphumid.lasttime ? data.temphumid.temperature : "N/A" }
+    p Humidity: #{ data.temphumid.lasttime ? data.temphumid.humidity : "N/A" }
+  - } 
+
