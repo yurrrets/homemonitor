@@ -1,0 +1,7 @@
+let config = {
+    iot_node_keys : {
+        "e83249bd3ba79932e16fb1fb5100dafade9954c2" : "home"
+    }
+}
+
+module.exports = config

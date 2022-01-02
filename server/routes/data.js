@@ -1,23 +1,27 @@
 var express = require('express');
 var router = express.Router();
 var logger = require('morgan');
+var config = require('../config')
 
-const keys = {
-    "e83249bd3ba79932e16fb1fb5100dafade9954c2" : "home"
-}
+const keys = config.iot_node_keys
 
-let msg_data = {
-    "e83249bd3ba79932e16fb1fb5100dafade9954c2" : {
-        start : {
-            lasttime: null
-        },
-        ping : {
-            lasttime: null
-        },
-        temphumid : {
-            lasttime: null,
-            temperature: 0,
-            humidity : 0
+let msg_data = { }
+
+/// init msg_data with key-value pair, where key is iot-node key and value is an obj holding message data
+function init_msg_data() {
+    for (key in keys) {
+        msg_data[key] = {
+            start : {
+                lasttime: null
+            },
+            ping : {
+                lasttime: null
+            },
+            temphumid : {
+                lasttime: null,
+                temperature: 0,
+                humidity : 0
+            }
         }
     }
 }
@@ -67,4 +71,6 @@ router.post('/send', function(req, res, next) {
     res.json(ret)
 });
 
+
+init_msg_data()
 module.exports = router;
