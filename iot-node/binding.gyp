@@ -1,4 +1,7 @@
 {
+    "variables": {
+        "target_platform": "<!(uname -a | grep -q orangepii96 && echo 'orangepi' || echo 'general')"
+    },
     "targets": [
         {
             "target_name": "dht-sensor",
@@ -14,7 +17,14 @@
             ],
             "cflags!": ["-fno-exceptions"],
             "cflags_cc!": ["-fno-exceptions"],
-            "defines": ["NAPI_CPP_EXCEPTIONS", "<!(uname -a | grep -q orangepii96 && echo 'CONFIG_ORANGEPI_I96' || echo 'DUMMY')"]
+            "defines": ["NAPI_CPP_EXCEPTIONS"],
+            "conditions": [ 
+                [ "target_platform=='orangepi'", 
+                {
+                    "defines": [ "CONFIG_ORANGEPI_I96" ],
+                    "libraries": [ "-lwiringPi" ]
+                } ]
+            ]
         }
     ]
 }
