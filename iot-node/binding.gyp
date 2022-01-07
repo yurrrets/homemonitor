@@ -14,7 +14,7 @@
             ],
             "cflags!": ["-fno-exceptions"],
             "cflags_cc!": ["-fno-exceptions"],
-            "defines": ["NAPI_CPP_EXCEPTIONS"]
+            "defines": ["NAPI_CPP_EXCEPTIONS", "<!(uname -a | grep -q orangepii96 && echo 'CONFIG_ORANGEPI_I96' || echo 'DUMMY')"]
         }
     ]
 }

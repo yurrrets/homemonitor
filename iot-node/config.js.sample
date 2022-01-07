@@ -5,6 +5,9 @@ config = {
     },
     messageAuth: {
         key: 'e83249bd3ba79932e16fb1fb5100dafade9954c2'
+    },
+    dhtSensor: {
+        gpionum: 6
     }
 }
 

@@ -74,7 +74,7 @@ async function send_message(type, data) {
 
 async function read_send_temphumid() {
     while (_is_running) {
-        const dhtval = dht_sensor.dhtValue()
+        const dhtval = dht_sensor.dhtValue(config.dhtSensor.gpionum)
         // if (dhtval)
         //     console.log(`i = ${i}, temp = ${dhtval.temperature} humid = ${dhtval.humidity}`)
         // else
