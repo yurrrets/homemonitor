@@ -1,10 +1,15 @@
 config = {
     httpOptions: {
+        protocol: 'https:', // 'http:' or 'https:'; default is 'https:'
         hostname: 'localhost',
         port: 3000
     },
-    messageAuth: {
-        key: 'e83249bd3ba79932e16fb1fb5100dafade9954c2'
+    messages: {
+        auth: {
+            key: 'e83249bd3ba79932e16fb1fb5100dafade9954c2'
+        },
+        tm_ping_every: 30000, // msec
+        tm_temphumid_every: 5000 // msec
     },
     dhtSensor: {
         gpionum: 6

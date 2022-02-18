@@ -1,7 +1,11 @@
 const dht_sensor = require('./build/Release/dht-sensor.node')
 const config = require('./config').config
-const https = require('http') //require('https')
 
+if (config.httpOptions.protocol === 'http:') {
+    const https = require('http')
+} else {
+    const https = require('https')
+}
 
 let _is_running = true
 let _async_ops = []
@@ -35,7 +39,7 @@ async function app_exit(retcode) {
 
 async function send_message(type, data) {
     //const httpData = new TextEncoder().encode(
-        const httpData =    JSON.stringify({ ...config.messageAuth, ...data, type: type })
+        const httpData =    JSON.stringify({ ...config.messages.auth, ...data, type: type })
     //)
     // console.log('httpData: '+httpData)
 
@@ -85,7 +89,7 @@ async function read_send_temphumid() {
             err => { console.log(`sent temphumid error: ${err}`) }
         )
 
-        await delay(5000)
+        await delay(config.messages.tm_temphumid_every)
     }
 }
 
@@ -95,7 +99,7 @@ async function send_pings() {
             data => { console.log(`sent ping ok, status=${data.statusCode}, resp=${data.data}`) },
             err => { console.log(`sent ping error: ${err}`) }
         )
-        await delay(1000 * 30)
+        await delay(config.messages.tm_ping_every)
     }
 }
 
