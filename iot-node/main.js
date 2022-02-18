@@ -1,10 +1,10 @@
 const dht_sensor = require('./build/Release/dht-sensor.node')
 const config = require('./config').config
-
+let https = {}
 if (config.httpOptions.protocol === 'http:') {
-    const https = require('http')
+    https = require('http')
 } else {
-    const https = require('https')
+    https = require('https')
 }
 
 let _is_running = true
