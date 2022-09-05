@@ -1,0 +1,10 @@
+[Unit]
+Description=Node of HomeMonitor project
+
+[Service]
+ExecStart=/share/homemonitor/iot-node.sh
+
+[Install]
+WantedBy=multi-user.target
+
+
